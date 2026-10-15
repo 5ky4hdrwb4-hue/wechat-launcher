@@ -12,44 +12,55 @@
             background: #f7f8fa;
             color: #333;
         }
-        a {
-            display: inline-block;
+        button {
             padding: 14px 24px;
             background: #07c160;
             color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 8px;
-            margin-top: 20px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <h2>Abrindo WeChat...</h2>
     <p id="status">Preparando conversa...</p>
-    <a id="abrir" href="#" style="display:none">
-        Abrir conversa no WeChat
-    </a>
+    <button id="abrir" style="display:none">
+        💬 Abrir conversa
+    </button>
 
     <script>
         const params = new URLSearchParams(window.location.search);
         const id = params.get("id");
 
+        const status = document.getElementById("status");
+        const botao = document.getElementById("abrir");
+
+        async function abrirWechat() {
+            try {
+                await navigator.clipboard.writeText(id);
+
+                status.textContent = "Abrindo conversa com " + id + "...";
+
+                window.location.href =
+                    "shortcuts://run-shortcut?name=Abrir%20Wechat";
+
+            } catch (erro) {
+                status.textContent =
+                    "O Safari bloqueou a cópia automática. Clique no botão abaixo.";
+                botao.style.display = "inline-block";
+            }
+        }
+
         if (id && /^[a-zA-Z0-9_-]+$/.test(id)) {
-            const url =
-                "shortcuts://run-shortcut?name=Abrir%20Wechat&input=text&text=" +
-                encodeURIComponent(id);
-
-            const botao = document.getElementById("abrir");
-            botao.href = url;
             botao.style.display = "inline-block";
+            botao.addEventListener("click", abrirWechat);
 
-            document.getElementById("status").textContent =
-                "Abrindo conversa com " + id + "...";
-
-            window.location.href = url;
+            // Tenta executar automaticamente
+            abrirWechat();
         } else {
-            document.getElementById("status").textContent =
-                "WeChat ID não informado ou inválido.";
+            status.textContent = "WeChat ID não informado ou inválido.";
         }
     </script>
 </body>
